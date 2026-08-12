@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DocuArt PDF · Fondos de arte - MBAB</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #fbf9f4 0%, #f2ead9 100%);
+            color: #2b2620;
+            line-height: 1.6;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #7a2e2e 0%, #6b5f4f 100%);
+            color: #fffdf8;
+            padding: 3rem 2rem;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(122, 46, 46, 0.35);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: '';
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: rgba(255,253,248,0.05);
+            border-radius: 50%;
+            top: -100px;
+            right: -100px;
+        }
+        
+        header::after {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: rgba(255,253,248,0.05);
+            border-radius: 50%;
+            bottom: -80px;
+            left: -80px;
+        }
+        
+        header .content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.8rem;
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+        
+        .museo-info {
+            font-size: 0.95rem;
+            opacity: 0.95;
+            margin-bottom: 1rem;
+            font-weight: 400;
+            letter-spacing: 0.5px;
+        }
+        
+        .museo-info .euzkera {
+            display: block;
+            font-style: italic;
+            margin-bottom: 0.25rem;
+        }
+        
+        .museo-info .espanol {
+            display: block;
+            font-style: italic;
+            margin-bottom: 0.75rem;
+        }
+        
+        .biblioteca-tag {
+            display: inline-block;
+            background: rgba(255,253,248,0.15);
+            padding: 0.45rem 1.25rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        
+        header p {
+            font-size: 1rem;
+            opacity: 0.9;
+            font-weight: 300;
+            max-width: 700px;
+            margin: 1.5rem auto 0;
+        }
+        
+        .container {
+            max-width: 1300px;
+            margin: -3rem auto 0;
+            padding: 0 1.5rem;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .search-box {
+            background: #fffdf8;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 15px 35px rgba(122, 46, 46, 0.1);
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            border: 2px solid #d8cdb8;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            background: #fbf9f4;
+        }
+        
+        .search-box input:focus {
+            outline: none;
+            border-color: #7a2e2e;
+            box-shadow: 0 0 0 3px rgba(122, 46, 46, 0.1);
+            background: #fffdf8;
+        }
+        
+        .search-box input::placeholder {
+            color: #a8a89a;
+        }
+        
+        .filters-row {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .filters {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .filters select {
+            padding: 0.75rem 1.25rem;
+            border: 2px solid #d8cdb8;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            background: #fbf9f4;
+            color: #2b2620;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            min-width: 180px;
+        }
+        
+        .filters select:hover {
+            border-color: #7a2e2e;
+        }
+        
+        .filters select:focus {
+            outline: none;
+            border-color: #7a2e2e;
+            box-shadow: 0 0 0 3px rgba(122, 46, 46, 0.1);
+        }
+        
+        .export-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn-export {
+            padding: 0.75rem 1.25rem;
+            border: 2px solid #7a2e2e;
+            background: #fffdf8;
+            color: #7a2e2e;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+        
+        .btn-export:hover {
+            background: #7a2e2e;
+            color: #fffdf8;
+        }
+        
+        .results-info {
+            background: linear-gradient(135deg, #f2ead9 0%, #cfc6b4 100%);
+            border-left: 4px solid #7a2e2e;
+            padding: 1.25rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            color: #2b2620;
+            font-weight: 500;
+        }
+        
+        .registros-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .registro-card {
+            background: #fffdf8;
+            border-radius: 12px;
+            padding: 1.75rem;
+            box-shadow: 0 4px 15px rgba(122, 46, 46, 0.08);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            position: relative;
+        }
+        
+        .registro-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(122, 46, 46, 0.15);
+            border-color: #d8cdb8;
+        }
+        
+        .registro-card h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            margin-bottom: 0.75rem;
+            color: #7a2e2e;
+            line-height: 1.4;
+        }
+        
+        .registro-card .author {
+            color: #6b5f4f;
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .registro-card p {
+            font-size: 0.9rem;
+            color: #8b8477;
+            margin-bottom: 1rem;
+        }
+        
+        .registro-card .year {
+            display: inline-block;
+            background: #f2ead9;
+            padding: 0.35rem 0.85rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #7a2e2e;
+        }
+        
+        .no-results {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 3rem 1rem;
+            color: #8b8477;
+            font-size: 1.1rem;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .modal-content {
+            background: #fffdf8;
+            border-radius: 12px;
+            max-width: 1000px;
+            width: 90%;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s ease;
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 2px solid #d8cdb8;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-header h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6rem;
+            color: #7a2e2e;
+            margin: 0;
+            flex: 1;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #8b8477;
+            transition: color 0.3s ease;
+        }
+        
+        .modal-close:hover {
+            color: #7a2e2e;
+        }
+        
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #d8cdb8;
+            overflow-x: auto;
+            background: #fbf9f4;
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            flex-shrink: 0;
+        }
+        
+        .tab-btn {
+            padding: 1rem 1.5rem;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #8b8477;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .tab-btn:hover {
+            color: #7a2e2e;
+        }
+        
+        .tab-btn.active {
+            color: #7a2e2e;
+            border-bottom-color: #7a2e2e;
+        }
+        
+        .modal-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .field {
+            margin-bottom: 1.5rem;
+        }
+        
+        .field-label {
+            font-weight: 700;
+            color: #7a2e2e;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .field-value {
+            color: #2b2620;
+            line-height: 1.7;
+            padding: 0.75rem;
+            background: #fbf9f4;
+            border-radius: 6px;
+        }
+        
+        .field-value.marc-value {
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        
+        .materias-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .materias-list li {
+            background: #f2ead9;
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: 6px;
+            border-left: 4px solid #7a2e2e;
+        }
+        
+        .pdf-viewer-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        
+        .pdf-toolbar {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem;
+            background: #f2ead9;
+            border-bottom: 2px solid #d8cdb8;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .pdf-toolbar button {
+            padding: 0.5rem 1rem;
+            border: 1px solid #d8cdb8;
+            background: #fffdf8;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        
+        .pdf-toolbar button:hover {
+            background: #7a2e2e;
+            color: #fffdf8;
+            border-color: #7a2e2e;
+        }
+        
+        .pdf-toolbar input {
+            padding: 0.5rem 1rem;
+            border: 1px solid #d8cdb8;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            width: 80px;
+            text-align: center;
+        }
+        
+        .pdf-info {
+            font-size: 0.9rem;
+            color: #6b5f4f;
+            font-weight: 500;
+        }
+        
+        .pdf-canvas-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #e8e0d0;
+            overflow: auto;
+            padding: 1rem;
+        }
+        
+        .pdf-canvas-container canvas {
+            max-width: 100%;
+            height: auto;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .pdf-placeholder {
+            text-align: center;
+            padding: 2rem;
+            color: #8b8477;
+        }
+        
+        .pdf-placeholder .icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .pdf-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+        
+        .btn-primary {
+            background: #7a2e2e;
+            color: #fffdf8;
+        }
+        
+        .btn-primary:hover {
+            background: #6b5f4f;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(122, 46, 46, 0.3);
+        }
+        
+        .btn-secondary {
+            background: #d8cdb8;
+            color: #2b2620;
+        }
+        
+        .btn-secondary:hover {
+            background: #c8bca8;
+        }
+        
+        .password-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .password-modal.active {
+            display: flex;
+        }
+        
+        .password-content {
+            background: #fffdf8;
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            animation: slideUp 0.3s ease;
+        }
+        
+        .password-content h3 {
+            font-family: 'Playfair Display', serif;
+            color: #7a2e2e;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+        
+        .password-content p {
+            color: #6b5f4f;
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+        }
+        
+        .password-content input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #d8cdb8;
+            border-radius: 8px;
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+            font-family: inherit;
+        }
+        
+        .password-content input:focus {
+            outline: none;
+            border-color: #7a2e2e;
+            box-shadow: 0 0 0 3px rgba(122, 46, 46, 0.1);
+        }
+        
+        .password-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .password-buttons .btn {
+            flex: 1;
+        }
+        
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2rem;
+            }
+            
+            .filters-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .filters {
+                width: 100%;
+            }
+            
+            .filters select {
+                width: 100%;
+            }
+            
+            .export-buttons {
+                width: 100%;
+            }
+            
+            .btn-export {
+                flex: 1;
+            }
+            
+            .registros-list {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal-content {
+                width: 95%;
+                max-height: 95vh;
+            }
+            
+            .tabs {
+                flex-wrap: wrap;
+            }
+            
+            .pdf-toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .pdf-toolbar button,
+            .pdf-toolbar input {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="content">
+            <h1>DocuArt PDF</h1>
+            <div class="museo-info">
+                <span class="euzkera">Arte Ederren Bilboko Museoa</span>
+                <span class="espanol">Museo de Bellas Artes de Bilbao</span>
+            </div>
+            <span class="biblioteca-tag">📚 Biblioteca Digital</span>
+            <p>Catálogo de fondos artísticos y documentales. Base de datos consultable de publicaciones, catálogos y material de referencia.</p>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="🔍 Buscar por título, autor, resumen, materias...">
+            
+            <div class="filters-row">
+                <div class="filters">
+                    <select id="yearFilter">
+                        <option value="">Todos los años</option>
+                    </select>
+                    <select id="typeFilter">
+                        <option value="">Todos los tipos</option>
+                    </select>
+                </div>
+                
+                <div class="export-buttons">
+                    <button class="btn-export" onclick="exportToJSON()">📥 Descargar JSON</button>
+                    <button class="btn-export" onclick="exportToCSV()">📥 Descargar CSV</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="results-info">
+            <span id="resultsCount">Registros encontrados: 0</span> · 
+            <span id="totalCount">Total: 0</span>
+        </div>
+        
+        <div class="registros-list" id="registrosList"></div>
+    </div>
+    
+    <!-- Modal de Detalle -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Título del registro</h2>
+                <button class="modal-close" onclick="closeModal()">✕</button>
+            </div>
+            
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('isbd', event)">ISBD</button>
+                <button class="tab-btn" onclick="switchTab('marc', event)">MARC21</button>
+                <button class="tab-btn" onclick="switchTab('materias', event)">Materias</button>
+                <button class="tab-btn" onclick="switchTab('resumen', event)">Resumen</button>
+                <button class="tab-btn" onclick="switchTab('documento', event)">Documento</button>
+            </div>
+            
+            <div class="modal-body">
+                <div id="isbd" class="tab-content active"></div>
+                <div id="marc" class="tab-content"></div>
+                <div id="materias" class="tab-content"></div>
+                <div id="resumen" class="tab-content"></div>
+                <div id="documento" class="tab-content"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal de Contraseña -->
+    <div id="passwordModal" class="password-modal">
+        <div class="password-content">
+            <h3>🔒 Descargar documento</h3>
+            <p>Introduce la contraseña para descargar el PDF:</p>
+            <input type="password" id="passwordInput" placeholder="Contraseña">
+            <div class="password-buttons">
+                <button class="btn btn-secondary" onclick="closePasswordModal()">Cancelar</button>
+                <button class="btn btn-primary" onclick="downloadWithPassword()">Descargar</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // ====================================================================
+        // BASE DE DATOS INCRUSTADA - 5 REGISTROS CATALOGADOS
+        // Para AÑADIR nuevos registros en el futuro:
+        // 1. Copia un objeto completo de registro
+        // 2. Cambia los valores (ID, título, autor, etc.)
+        // 3. Asegúrate de la COMA entre registros
+        // 4. Guarda y recarga
+        // ====================================================================
+        
+        const registros = [
+          {
+            "id": "plensa2004",
+            "titulo": "Silent Noise",
+            "autor": "Plensa, Jaume (1955-)",
+            "anio": "2004",
+            "lugar": "Madrid",
+            "editorial": "Ministerio de Asuntos Exteriores / SEACEX",
+            "tipo": "Catálogo de exposición",
+            "paginas": "109",
+            "idioma": "es/en",
+            "isbd": "<p><strong>Plensa, Jaume (1955-)</strong></p><p>Silent Noise / comisariado por Juan Manuel Bonet y Kathy Cottong ; textos de Doris Von Drathen, Laura Coyle ; diseño de Saura-Torrente. – Madrid : Ministerio de Asuntos Exteriores. Dirección General de Relaciones Culturales y Científicas : Sociedad Estatal para la Acción Cultural Exterior (SEACEX), 2004.</p><p>109 p. : il. col., fot. ; 28 cm</p><p>ISBN: 84-7232-996-8 (MAE); 84-96008-48-7 (SEACEX)<br>Depósito legal: M-53959-2003</p><p>Catálogo de la exposición itinerante \"Silent Noise\" de Jaume Plensa, celebrada en The Arts Club of Chicago (20 de enero - 27 de marzo de 2004) y en el Contemporary Arts Center de Nueva Orleans (23 de abril - 13 de junio de 2004). Programa del Ministerio de Asuntos Exteriores de España para la promoción del arte contemporáneo.</p>",
+            "marc": "LDR  00000nam a2200000 a 4500\n008  040601s2004    sp a          000 1 spa d\n020 __ $a 8472329968 $q (MAE)\n020 __ $a 8496008487 $q (SEACEX)\n040 __ $a XX-BilBib $b spa $c XX-BilBib\n100 1_ $a Plensa, Jaume, $d 1955-\n245 10 $a Silent Noise / $c comisariado por Juan Manuel Bonet y Kathy Cottong\n260 _1 $a Madrid : $b Ministerio de Asuntos Exteriores, $c 2004\n300 __ $a 109 p. : $b il. col., fot. ; $c 28 cm\n082 00 $a 733 $2 21\n650 _0 $a Plensa, Jaume, 1955- $v Catálogos de exposiciones\n655 _7 $a Catálogos de exposiciones $2 lcgft",
+            "materias": [
+              "Plensa, Jaume, 1955- -- Catálogos de exposiciones",
+              "Escultura española -- Siglo XX",
+              "Escultura contemporánea -- España",
+              "Arte contemporáneo -- España",
+              "Instalaciones de arte",
+              "Escultura -- Materiales",
+              "Luz en el arte",
+              "Fotografía artística",
+              "Proyectos de arquitectura contemporánea",
+              "Lenguaje como elemento artístico",
+              "Espacialidad en el arte"
+            ],
+            "resumen": "Catálogo comprehensivo de la exposición itinerante 'Silent Noise' de Jaume Plensa, presentada en The Arts Club of Chicago (20 de enero - 27 de marzo de 2004) y en el Contemporary Arts Center de Nueva Orleans (23 de abril - 13 de junio de 2004). Editado por el Ministerio de Asuntos Exteriores de España a través de su programa de promoción internacional del arte español, el catálogo fue comisariado por Juan Manuel Bonet y Kathy Cottong, con textos críticos de Doris Von Drathen y Laura Coyle. El volumen reúne una selección representativa de la producción artística de Jaume Plensa de los años 1995 a 2003, documentando su práctica multidisciplinar que abarca escultura, instalaciones, fotografía, pintura y proyectos de arquitectura. La obra de Plensa se destaca por su innovación formal y su particular relación con los materiales: vidrio, hierro, cerámica y luz constituyen elementos fundamentales de su lenguaje plástico. Un aspecto distinguido de su práctica es la integración del lenguaje escrito como componente artístico integral. Sus instalaciones se caracterizan por la interacción dinámica entre forma, espacio y luz, generando experiencias inmersivas que trascienden la contemplación pasiva. El catálogo incluye fotografías de alta calidad de las obras en sus contextos de exposición, datos biográficos del artista, y extensa bibliografía que documenta la recepción crítica internacional. El volumen constituye un testimonio valioso de la vigencia de la práctica artística española en el circuito contemporáneo internacional.",
+            "cdu": "733",
+            "pdf": "pdfs/2022/Jaume-Plensa2004.pdf",
+            "ocr_verificado": true,
+            "fecha_catalogacion": "2024-08-12",
+            "catalogador": "Marian"
+          },
+          {
+            "id": "LucioMuñoz1958",
+            "titulo": "Lucio Muñoz",
+            "autor": "Sáenz Oiza, Francisco",
+            "anio": "1958",
+            "lugar": "Madrid",
+            "editorial": "Editora Nacional",
+            "tipo": "Cuaderno de arte",
+            "paginas": "30",
+            "idioma": "es",
+            "isbd": "<p><strong>Sáenz Oiza, Francisco</strong></p><p>Lucio Muñoz / Francisco Sáenz Oiza. – Madrid : Editora Nacional, 1958.</p><p>30 p. : il. blanco y negro, fot. ; 21 cm. - (Cuadernos de arte ; 39)</p><p>Nota: Las obras reproducidas fueron presentadas en la Sala del Prado, del Ateneo de Madrid, del 2 al 16 de diciembre de 1958. Director de la colección: José Luis Tafur.</p>",
+            "marc": "LDR  00000nam a2200000 a 4500\n008  581201s1958    sp            000 0 spa d\n040 __ $a XX-BilBib $b spa $c XX-BilBib\n100 1_ $a Sáenz Oiza, Francisco\n245 10 $a Lucio Muñoz / $c Francisco Sáenz Oiza\n260 _1 $a Madrid : $b Editora Nacional, $c 1958\n300 __ $a 30 p. : $b il. blanco y negro, fot. ; $c 21 cm\n490 1_ $a Cuadernos de arte ; $v 39\n500 __ $a Las obras reproducidas fueron presentadas en la Sala del Prado, del Ateneo de Madrid, del 2 al 16 de diciembre de 1958\n500 __ $a Director de la colección: José Luis Tafur\n500 __ $a Dedicatoria autografiada de Lucio Muñoz, fechada 31 de octubre de 1958\n650 _0 $a Muñoz, Lucio, 1929-1998 $v Crítica e interpretación\n650 _0 $a Pintura española $y Siglo XX\n650 _0 $a Arte abstracto $z España\n830 _0 $a Cuadernos de arte ; $v 39",
+            "materias": [
+              "Muñoz, Lucio, 1929-1998 -- Crítica e interpretación",
+              "Pintura española -- Siglo XX",
+              "Pintura abstracta -- España",
+              "Informalismo (Arte) -- España",
+              "Arte abstracto -- Europa",
+              "Expresionismo abstracto",
+              "Pintura sobre tabla -- España",
+              "Madera -- Aspecto artístico",
+              "Luz y sombra en el arte",
+              "Teoría del arte -- Siglo XX",
+              "Cuadernos de arte -- España",
+              "Abstracción (Arte) -- España -- Historia",
+              "Expresionismo -- Historia -- Crítica",
+              "Espiritualidad en el arte -- Teoría",
+              "Ateneo de Madrid -- Exposiciones -- Historia"
+            ],
+            "resumen": "Número especial de la publicación Cuadernos de Arte del Ateneo de Madrid, dirigida por José Luis Tafur, dedicado al pintor español Lucio Muñoz (1929-1998). El cuaderno constituye un análisis crítico exhaustivo de la obra del artista madrileño, con especial énfasis en su evolución hacia el arte abstracto e informalismo. Incluye un ensayo teórico profundo del arquitecto y crítico Francisco Sáenz Oiza que contextualiza la trayectoria del pintor en el panorama de la pintura española contemporánea. El texto de Sáenz Oiza ofrece una reflexión historiográfica sobre la evolución del arte desde lo clásico hacia la abstracción. Analiza las etapas previas decisivas: el expresionismo (visión deformada del objeto según la presión psíquica del artista), el cubismo (que rompe con la perspectiva convencional buscando nueva identificación del ser con el objeto representado) y el informalismo como culminación de estos movimientos. Argumenta que el arte abstracto establece una comunicación espiritual directa a través de ritmos de materiales, calidades, forma y color, equiparable a cómo la música no-descriptiva comunica mediante sonidos y tiempos. Sobre Lucio Muñoz específicamente, Sáenz Oiza destaca su \"pintura extrema, extrema de rigor, de honestidad y de pureza\" con carácter fundamentalmente ascético. Afirma que el artista ha sabido \"pintar realidades y hacer de cada realidad un símbolo\" y, recíprocamente, \"revertir en símbolos esenciales la más desnuda y cruda realidad\". Su obra no presenta temas anecdóticos, sino un \"desplegar sordo de vibraciones, de formas y de colores que nos transportan hacia el sentimiento de lo elevado, lo espiritual y de lo religioso\". La paleta sucinta y las formas primarias brindan \"sugerencias para la más alta emoción espiritual\". El volumen reúne diez reproducciones fotográficas de obras representativas en blanco y negro: Cuadro negro, Los óvalos, Tiempo, Graziella, Ascensión, Diciembre, Pintura en tabla, Cuadro ocre, Valle y Caso azul 58, permitiendo apreciar la evolución de su lenguaje plástico. Sáenz Oiza caracteriza la obra de Muñoz como \"ventana abierta\" donde el hombre \"en su angustia, cansado de una naturaleza artificial e imposible, pueda re-encontrarse\". La biografía final documenta la trayectoria completa del artista: nacido en Madrid (1929), alumno de Eduardo Chicharro y de la Escuela de Bellas Artes de San Fernando, beneficiario de beca de viaje de la Delegación Nacional de Educación, beca de residencia en el Colegio de España en París, beca del Gobierno francés, con viajes por Inglaterra, Francia e Italia. Participó en exposiciones destacadas (Dirección General de Bellas Artes con López García, 1955; Santander y Madrid 1955-1957) e integraba las exposiciones viajeras del Ateneo sobre \"Arte joven\" y \"Pintura abstracta española\". Su obra estaba presente en galerías y colecciones de París, Madrid, Nueva York, Chicago, Oslo y Manila.",
+            "cdu": "759.6",
+            "pdf": "pdfs/2022/LucioMuñoz1958.pdf",
+            "ocr_verificado": true,
+            "fecha_catalogacion": "2024-08-12",
+            "catalogador": "Marian"
+          },
+          {
+            "id": "Muñoz_Lucio_Marlborough",
+            "titulo": "Lucio Muñoz : veinte años",
+            "autor": "Solana, Guillermo",
+            "anio": "2018",
+            "lugar": "Madrid",
+            "editorial": "Marlborough",
+            "tipo": "Catálogo de exposición",
+            "paginas": "27",
+            "idioma": "es",
+            "isbd": "<p><strong>Solana, Guillermo</strong></p><p>Lucio Muñoz : veinte años / Guillermo Solana ; comisariado por Rodrigo Muñoz Avia. – Madrid : Marlborough, 2018.</p><p>27 p. : il. color, fot. ; 28 cm.</p><p>ISBN 978-84-948689-6-2<br>Depósito legal: M-37011-2018</p><p>Catálogo de la exposición celebrada en la Galería Marlborough, Madrid, 29 de noviembre de 2018 - 3 de enero de 2019.</p>",
+            "marc": "LDR  00000nam a2200000 a 4500\n008  181101s2018    sp a          000 0 spa d\n020 __ $a 9788494868962\n040 __ $a XX-BilBib $b spa $c XX-BilBib\n100 1_ $a Solana, Guillermo\n245 10 $a Lucio Muñoz : $b veinte años / $c Guillermo Solana\n260 _1 $a Madrid : $b Marlborough, $c 2018\n300 __ $a 27 p. : $b il. color, fot. ; $c 28 cm",
+            "materias": [
+              "Muñoz, Lucio, 1929-1998 -- Catálogos de exposiciones",
+              "Pintura española -- Siglo XX",
+              "Pintura sobre tabla -- España"
+            ],
+            "resumen": "Catálogo de la exposición 'Lucio Muñoz: Veinte años' presentada en la Galería Marlborough de Madrid (29 de noviembre de 2018 - 3 de enero de 2019). El volumen reúne obra representativa de los últimos veinte años del pintor madrileño Lucio Muñoz (1929-1998), cuya trayectoria artística se caracteriza por la innovación formal y la experimentación con materiales diversos.",
+            "cdu": "759.6",
+            "pdf": "pdfs/2022/Muñoz_Lucio_Marlborough.pdf",
+            "ocr_verificado": true,
+            "fecha_catalogacion": "2024-08-12",
+            "catalogador": "Marian"
+          },
+          {
+            "id": "chillida2016",
+            "titulo": "Buscando la luz : Chillida",
+            "autor": "Chillida, Eduardo (1924-2002)",
+            "anio": "2016",
+            "lugar": "Cartagena (Murcia)",
+            "editorial": "Consejería de Cultura y Portavocía",
+            "tipo": "Catálogo de exposición",
+            "paginas": "88",
+            "idioma": "es",
+            "isbd": "<p><strong>Chillida, Eduardo (1924-2002)</strong></p><p>Buscando la luz : Chillida / comisariado, Ignacio Chillida Belzunce. – Cartagena (Murcia) : Consejería de Cultura y Portavocía, 2016.</p><p>88 p. : il. col. ; 28 cm.</p><p>Catálogo de la exposición celebrada en el Museo Regional de Arte Moderno, Cartagena, mayo-agosto de 2016.</p>",
+            "marc": "LDR  00000nam a2200000 a 4500\n008  160501s2016    sp            000 0 spa d\n040 __ $a XX-BilBib $b spa $c XX-BilBib\n100 1_ $a Chillida, Eduardo, $d 1924-2002\n245 10 $a Buscando la luz : $b Chillida / $c comisariado, Ignacio Chillida Belzunce",
+            "materias": [
+              "Chillida, Eduardo, 1924-2002 -- Catálogos de exposiciones",
+              "Escultura española -- Siglo XX",
+              "Luz en el arte"
+            ],
+            "resumen": "Catálogo de la exposición 'Buscando la luz. Chillida' celebrada en el Museo Regional de Arte Moderno de Cartagena (mayo-agosto de 2016). El proyecto fue comisariado por Ignacio Chillida Belzunce, hijo del artista, y reúne una selección representativa de la obra escultórica de Eduardo Chillida, con especial énfasis en la relación entre la forma, el espacio y la luz.",
+            "cdu": "733",
+            "pdf": "pdfs/2023/chillida2016.pdf",
+            "ocr_verificado": true,
+            "fecha_catalogacion": "2024-08-11",
+            "catalogador": "Marian"
+          },
+          {
+            "id": "munoz2018",
+            "titulo": "Lucio Muñoz : veinte años",
+            "autor": "Muñoz, Lucio (1929-1998)",
+            "anio": "2018",
+            "lugar": "Madrid",
+            "editorial": "Galería Marlborough",
+            "tipo": "Catálogo de exposición",
+            "paginas": "17",
+            "idioma": "es",
+            "isbd": "<p><strong>Muñoz, Lucio (1929-1998)</strong></p><p>Lucio Muñoz : veinte años / texto de Guillermo Solana. – Madrid : Galería Marlborough, 2018.</p><p>[17] p. : il. col. ; 28 cm.</p><p>Catálogo publicado con motivo de la exposición homónima celebrada en la Galería Marlborough de Madrid del 29 de noviembre de 2018 al 3 de enero de 2019.</p>",
+            "marc": "LDR  00000nam a2200000 a 4500\n008  181101s2018    sp            000 0 spa d\n040 __ $a XX-BilBib $b spa $c XX-BilBib\n100 1_ $a Muñoz, Lucio, $d 1929-1998\n245 10 $a Lucio Muñoz : $b veinte años / $c texto de Guillermo Solana",
+            "materias": [
+              "Muñoz, Lucio, 1929-1998 -- Catálogos de exposiciones",
+              "Pintura española -- Siglo XX"
+            ],
+            "resumen": "Catálogo de la exposición homónima celebrada en la Galería Marlborough de Madrid (29 de noviembre de 2018 - 3 de enero de 2019). El volumen reúne obra representativa de los últimos veinte años del pintor madrileño Lucio Muñoz. Incluye ensayo crítico del historiador del arte Guillermo Solana.",
+            "cdu": "759.6",
+            "pdf": "pdfs/2022/munoz2018.pdf",
+            "ocr_verificado": true,
+            "fecha_catalogacion": "2024-08-11",
+            "catalogador": "Marian"
+          }
+        ];
+        
+        // ====================================================================
+        // FIN BASE DE DATOS
+        // ====================================================================
+        
+        let registrosData = registros;
+        let currentPdfFile = '';
+        let pdfDoc = null;
+        let currentPage = 1;
+        let pageCount = 0;
+        const correctPassword = 'mbab';
+        
+        function renderRegistros(items) {
+            const lista = document.getElementById('registrosList');
+            
+            if (items.length === 0) {
+                lista.innerHTML = '<div class="no-results">No se encontraron resultados</div>';
+                updateResultsInfo(0);
+                return;
+            }
+            
+            lista.innerHTML = items.map(reg => `
+                <div class="registro-card" onclick="openModal('${reg.id}')">
+                    <h3>${reg.titulo}</h3>
+                    <p class="author">${reg.autor}</p>
+                    <p>${reg.lugar} · ${reg.editorial || 'S.l.'}</p>
+                    <span class="year">${reg.anio}</span>
+                </div>
+            `).join('');
+            
+            updateResultsInfo(items.length);
+        }
+        
+        function updateResultsInfo(count) {
+            document.getElementById('resultsCount').textContent = `Registros encontrados: ${count}`;
+            document.getElementById('totalCount').textContent = `Total: ${registrosData.length}`;
+        }
+        
+        function populateFilters() {
+            const years = [...new Set(registrosData.map(r => r.anio))].sort().reverse();
+            const types = [...new Set(registrosData.map(r => r.tipo))];
+            
+            const yearFilter = document.getElementById('yearFilter');
+            years.forEach(year => {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                yearFilter.appendChild(option);
+            });
+            
+            const typeFilter = document.getElementById('typeFilter');
+            types.forEach(type => {
+                const option = document.createElement('option');
+                option.value = type;
+                option.textContent = type;
+                typeFilter.appendChild(option);
+            });
+        }
+        
+        async function openModal(id) {
+            const reg = registrosData.find(r => r.id === id);
+            if (!reg) return;
+            
+            currentPdfFile = reg.pdf;
+            pdfDoc = null;
+            currentPage = 1;
+            pageCount = 0;
+            
+            document.getElementById('modalTitle').textContent = reg.titulo;
+            
+            document.getElementById('isbd').innerHTML = `
+                <div class="field">
+                    <div class="field-label">Descripción ISBD</div>
+                    <div class="field-value">${reg.isbd}</div>
+                </div>
+                <div class="field">
+                    <div class="field-label">Clasificación CDU</div>
+                    <div class="field-value">${reg.cdu || 'No especificada'}</div>
+                </div>
+            `;
+            
+            document.getElementById('marc').innerHTML = `
+                <div class="field">
+                    <div class="field-label">Registro MARC21</div>
+                    <div class="field-value marc-value">${reg.marc}</div>
+                </div>
+            `;
+            
+            document.getElementById('materias').innerHTML = `
+                <div class="field">
+                    <div class="field-label">Encabezamientos de Materia (Universidad de Sevilla)</div>
+                    <ul class="materias-list">
+                        ${reg.materias.map(m => `<li>${m}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+            
+            document.getElementById('resumen').innerHTML = `
+                <div class="field">
+                    <div class="field-label">Resumen</div>
+                    <div class="field-value">${reg.resumen}</div>
+                </div>
+                <div class="field" style="font-size: 0.85rem; color: #8b8477; margin-top: 2rem;">
+                    <strong>Metadatos de catalogación:</strong><br>
+                    Catalogador: ${reg.catalogador}<br>
+                    Fecha: ${reg.fecha_catalogacion}<br>
+                    OCR verificado: ${reg.ocr_verificado ? 'Sí' : 'No'}
+                </div>
+            `;
+            
+            document.getElementById('documento').innerHTML = `
+                <div class="pdf-viewer-container">
+                    <div class="pdf-toolbar">
+                        <button onclick="previousPage()">← Anterior</button>
+                        <input type="number" id="pageInput" min="1" value="1" onchange="goToPage()">
+                        <span class="pdf-info"><span id="currentPage">0</span> / <span id="totalPages">0</span></span>
+                        <button onclick="nextPage()">Siguiente →</button>
+                        <button class="btn btn-primary" onclick="openPasswordModal()" style="margin-left: auto;">🔒 Descargar PDF</button>
+                    </div>
+                    <div class="pdf-canvas-container">
+                        <canvas id="pdfCanvas"></canvas>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('detailModal').classList.add('active');
+            
+            setTimeout(() => loadPdf(reg.pdf), 100);
+        }
+        
+        async function loadPdf(filename) {
+            const pdfjsLib = window['pdfjs-dist/build/pdf'];
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+            
+            try {
+                pdfDoc = await pdfjsLib.getDocument(`pdfs/${filename}`).promise;
+                pageCount = pdfDoc.numPages;
+                document.getElementById('totalPages').textContent = pageCount;
+                document.getElementById('pageInput').max = pageCount;
+                renderPage(1);
+            } catch (error) {
+                const container = document.querySelector('.pdf-canvas-container');
+                container.innerHTML = '⚠️ PDF no encontrado. Verifica que el archivo exista en la carpeta /pdfs/';
+            }
+        }
+        
+        async function renderPage(num) {
+            if (!pdfDoc) return;
+            
+            const page = await pdfDoc.getPage(num);
+            const scale = 1.5;
+            const viewport = page.getViewport({ scale: scale });
+            const canvas = document.getElementById('pdfCanvas');
+            const context = canvas.getContext('2d');
+            
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+            
+            const renderContext = {
+                canvasContext: context,
+                viewport: viewport
+            };
+            
+            await page.render(renderContext).promise;
+            
+            currentPage = num;
+            document.getElementById('currentPage').textContent = num;
+            document.getElementById('pageInput').value = num;
+        }
+        
+        function nextPage() {
+            if (currentPage < pageCount) {
+                renderPage(currentPage + 1);
+            }
+        }
+        
+        function previousPage() {
+            if (currentPage > 1) {
+                renderPage(currentPage - 1);
+            }
+        }
+        
+        function goToPage() {
+            const page = parseInt(document.getElementById('pageInput').value);
+            if (page >= 1 && page <= pageCount) {
+                renderPage(page);
+            }
+        }
+        
+        function closeModal() {
+            document.getElementById('detailModal').classList.remove('active');
+        }
+        
+        function switchTab(tabName, event) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+        
+        function openPasswordModal() {
+            document.getElementById('passwordInput').value = '';
+            document.getElementById('passwordModal').classList.add('active');
+            document.getElementById('passwordInput').focus();
+        }
+        
+        function closePasswordModal() {
+            document.getElementById('passwordModal').classList.remove('active');
+        }
+        
+        function downloadWithPassword() {
+            const password = document.getElementById('passwordInput').value.toLowerCase();
+            
+            if (password !== correctPassword) {
+                alert('❌ Contraseña incorrecta. Intenta de nuevo.');
+                return;
+            }
+            
+            const link = document.createElement('a');
+            link.href = `pdfs/${currentPdfFile}`;
+            link.download = currentPdfFile;
+            link.click();
+            
+            closePasswordModal();
+        }
+        
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const query = e.target.value.toLowerCase();
+            const filtered = registrosData.filter(r => 
+                r.titulo.toLowerCase().includes(query) ||
+                r.autor.toLowerCase().includes(query) ||
+                r.resumen.toLowerCase().includes(query) ||
+                r.materias.some(m => m.toLowerCase().includes(query))
+            );
+            renderRegistros(filtered);
+        });
+        
+        document.getElementById('yearFilter').addEventListener('change', applyFilters);
+        document.getElementById('typeFilter').addEventListener('change', applyFilters);
+        
+        function applyFilters() {
+            const year = document.getElementById('yearFilter').value;
+            const type = document.getElementById('typeFilter').value;
+            
+            let filtered = registrosData;
+            if (year) filtered = filtered.filter(r => r.anio === year);
+            if (type) filtered = filtered.filter(r => r.tipo === type);
+            
+            renderRegistros(filtered);
+        }
+        
+        function exportToJSON() {
+            const dataStr = JSON.stringify(registrosData, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `docuart-registros-${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+        }
+        
+        function exportToCSV() {
+            if (registrosData.length === 0) {
+                alert('No hay registros para exportar');
+                return;
+            }
+            
+            const headers = ['ID', 'Título', 'Autor', 'Año', 'Lugar', 'Editorial', 'Tipo', 'CDU'];
+            const rows = registrosData.map(r => [
+                r.id, r.titulo, r.autor, r.anio, r.lugar, r.editorial, r.tipo, r.cdu
+            ]);
+            
+            let csv = headers.join(',') + '\n';
+            rows.forEach(row => {
+                csv += row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',') + '\n';
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `docuart-registros-${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+        }
+        
+        document.getElementById('passwordInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') downloadWithPassword();
+        });
+        
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+                closePasswordModal();
+            }
+            if (e.key === 'ArrowRight' && pdfDoc) nextPage();
+            if (e.key === 'ArrowLeft' && pdfDoc) previousPage();
+        });
+        
+        // Inicializar
+        renderRegistros(registrosData);
+        populateFilters();
+        updateResultsInfo(registrosData.length);
+    </script>
+</body>
+</html>
